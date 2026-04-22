@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card shadow p-5" style="max-width: 700px; margin:auto;">
+
+    <h3 class="mb-4">Profile Information</h3>
+
+    <form method="POST">
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Age</label>
+                <input name="age" type="number" min="10" max="100" class="form-control" required
+                       value="{{ profile.age if profile else '' }}">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label>Gender</label>
+                <select name="gender" class="form-control" required>
+                    <option value="">Select</option>
+                    <option {% if profile and profile.gender == 'Male' %}selected{% endif %}>Male</option>
+                    <option {% if profile and profile.gender == 'Female' %}selected{% endif %}>Female</option>
+                    <option {% if profile and profile.gender == 'Other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Height (cm)</label>
+                <input name="height" type="number" class="form-control" min="100" max="220" required
+                       value="{{ profile.height if profile else '' }}">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label>Weight (kg)</label>
+                <input name="weight" type="number" class="form-control" min="30" max="200" required
+                       value="{{ profile.weight if profile else '' }}">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label>Smoking</label>
+                <select name="smoking" class="form-control">
+                    <option {% if profile and profile.smoking == 'No' %}selected{% endif %}>No</option>
+                    <option {% if profile and profile.smoking == 'Yes' %}selected{% endif %}>Yes</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label>Alcohol</label>
+                <select name="alcohol" class="form-control">
+                    <option {% if profile and profile.alcohol == 'None' %}selected{% endif %}>None</option>
+                    <option {% if profile and profile.alcohol == 'Occasional' %}selected{% endif %}>Occasional</option>
+                    <option {% if profile and profile.alcohol == 'Regular' %}selected{% endif %}>Regular</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label>Family History</label>
+                <select name="family" class="form-control" id="familySelect"
+                        onchange="toggleFamilyConditions()">
+                    <option value="No" {% if not profile or profile.family == 'No' %}selected{% endif %}>No</option>
+                    <option value="Yes" {% if profile and profile.family == 'Yes' %}selected{% endif %}>Yes</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Family Conditions — shown only when Family History = Yes -->
+        <div id="familyConditionsBox" style="display:none;" class="mb-4">
+            <label class="fw-semibold mb-2" style="font-size:0.95rem;">
+                ⚕️ Select conditions that run in your family:
+            </label>
+            <p class="text-muted" style="font-size:0.82rem; margin-bottom:10px;">
+                These will increase risk scores for relevant health categories.
+            </p>
+
+            {% set saved = profile.family_conditions.split(',') if profile and profile.family_conditions else [] %}
+
+            <div class="row">
+                {% set conditions = [
+                    ('diabetes',      '🩸 Diabetes'),
+                    ('heart_disease', '❤️ Heart Disease'),
+                    ('hypertension',  '💉 Hypertension'),
+                    ('cancer',        '🎗️ Cancer'),
+                    ('depression',    '🧠 Depression / Anxiety'),
+                    ('migraine',      '🤕 Migraine'),
+                    ('obesity',       '⚖️ Obesity'),
+                    ('stroke',        '🫀 Stroke'),
+                ] %}
+
+                {% for value, label in conditions %}
+                <div class="col-md-6 mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               name="family_conditions" value="{{ value }}"
+                               id="fc_{{ value }}"
+                               {% if value in saved %}checked{% endif %}>
+                        <label class="form-check-label" for="fc_{{ value }}">
+                            {{ label }}
+                        </label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+        </div>
+
+
+        <button class="btn btn-primary w-100 mt-3">
+            Save Profile
+        </button>
+
+    </form>
+</div>
+
+<script>
+function toggleFamilyConditions() {
+    const val = document.getElementById('familySelect').value;
+    document.getElementById('familyConditionsBox').style.display = (val === 'Yes') ? 'block' : 'none';
+}
+
+// Run on page load to restore saved state
+document.addEventListener('DOMContentLoaded', function() {
+    toggleFamilyConditions();
+});
+</script>
+
+<!-- Floating AI Chat Icon -->
+<a href="/chatbot" class="ai-chat-icon" title="AI Health Assistant">
+    🤖
+</a>
+
+<style>
+.ai-chat-icon {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6a5cff, #8f7bff);
+    color: #fff;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 8px 22px rgba(106, 92, 255, 0.35);
+    transition: all 0.25s ease;
+    z-index: 9999;
+}
+
+.ai-chat-icon:hover {
+    transform: scale(1.12);
+    box-shadow: 0 10px 28px rgba(106, 92, 255, 0.5);
+}
+</style>
+
+{% endblock %}

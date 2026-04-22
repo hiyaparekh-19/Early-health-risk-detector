@@ -1,0 +1,27 @@
+<header class="public-nav">
+  <a class="public-brand" href="/">
+    <span class="public-brand-mark"><i class="bi bi-heart-pulse-fill"></i></span>
+    <span>
+      <strong>HealthPulse</strong>
+      <small>Preventive health insights</small>
+    </span>
+  </a>
+
+  <nav class="public-menu" aria-label="Primary">
+    <a class="{% if request.path.startswith('/dashboard') or request.path.startswith('/analytics') or request.path.startswith('/monthly-history') or request.path.startswith('/daily') or request.path.startswith('/profile') %}active{% endif %}" href="/dashboard">Dashboard</a>
+    <a class="{% if request.path == '/' %}active{% endif %}" href="/">Home</a>
+    <a class="{% if request.path.startswith('/about') %}active{% endif %}" href="/about">About</a>
+    <a class="{% if request.path.startswith('/faq') %}active{% endif %}" href="/faq">FAQ</a>
+    <a class="{% if request.path.startswith('/privacy') or request.path.startswith('/terms') %}active{% endif %}" href="/privacy">Privacy</a>
+    <a class="{% if request.path.startswith('/contact') %}active{% endif %}" href="/contact">Contact</a>
+  </nav>
+
+  <div class="public-actions">
+    {% if session.get("user_id") %}
+      <a class="public-btn public-btn-primary" href="/logout">Logout</a>
+    {% else %}
+      <a class="public-btn public-btn-secondary" href="/login">Login</a>
+      <a class="public-btn public-btn-primary" href="/register">Get Started</a>
+    {% endif %}
+  </div>
+</header>

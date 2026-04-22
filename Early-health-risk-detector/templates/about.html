@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="public-site">
+  <section class="public-page-hero" style="background-image: linear-gradient(120deg, rgba(49, 26, 98, 0.74), rgba(108, 99, 255, 0.56)), url('https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=1600&q=80');">
+    <div class="public-page-hero-copy">
+      <div class="public-kicker">About HealthPulse</div>
+      <h1>Built to make preventive health tracking feel practical, not overwhelming.</h1>
+      <p class="public-lead">
+        We focus on the patterns people actually live with: stress that keeps rising, sleep that keeps slipping, and routines that are easier to understand in monthly context.
+      </p>
+    </div>
+  </section>
+
+  <section class="public-band">
+    <div class="public-two-column">
+      <div>
+        <div class="public-kicker">Our approach</div>
+        <h2>Plain-language insights rooted in daily behaviour.</h2>
+        <p>
+          HealthPulse was shaped around one idea: early awareness should be accessible. When people can connect their routines to meaningful trends, they can change course sooner and with less stress.
+        </p>
+        <p>
+          That is why the product separates current-month analysis from archived month review, keeps explanations readable, and focuses on signals people can act on right away.
+        </p>
+      </div>
+
+      <div class="public-value-grid">
+        <article class="public-value-card">
+          <h3>Explainable</h3>
+          <p>Scores come with reasons, not just numbers.</p>
+        </article><br>
+        <article class="public-value-card">
+          <h3>Habit-first</h3>
+          <p>We look at repeatable routines before one-off outliers.</p>
+        </article><br>
+        <article class="public-value-card">
+          <h3>Human</h3>
+          <p>The experience stays supportive, direct, and easy to revisit.</p>
+        </article><br>
+        <article class="public-value-card">
+          <h3>Private by default</h3>
+          <p>Personal data stays tied to your account and product use.</p>
+        </article><br>
+      </div>
+    </div>
+  </section>
+
+  <section class="public-band public-band-soft">
+    <div class="public-section-head">
+      <div class="public-kicker">People behind the work</div>
+      <h2>A small interdisciplinary team focused on wellness, design, and applied AI.</h2>
+    </div>
+
+    <div class="public-team-grid">
+      <article class="public-team-card">
+        <img src="{{ url_for('static', filename='images/hiya.jpeg') }}" alt="Portrait of Ms. Hiya Parekh"><br>
+        <h3>Ms. Hiya Parekh</h3>
+        <p>Student</p>
+        <span>I’m someone who enjoys building practical tech solutions and continuously improving my skills through hands-on projects. I like turning ideas into real, user-friendly systems that solve meaningful problems.</span>
+      </article>
+      <article class="public-team-card">
+        <img src="{{ url_for('static', filename='images/Jeet.jpeg') }}"><br>
+        <h3>Mr. Jeet Bhatia</h3>
+        <p>Student</p>
+        <span>I am a dedicated and curious individual with a strong interest in learning and problem-solving. I enjoy building practical solutions and continuously improving my skills.</span>
+      </article>
+      <article class="public-team-card">
+        <img src="{{ url_for('static', filename='images/Krish.jpeg') }}"><br>
+        <h3>Mr. Krish Parikh</h3>
+        <p>Student</p>
+        <span>I am a curious and driven individual, passionate about learning and exploring new ideas.
+I blend creativity with technical thinking, constantly working to improve and grow in his field.</span>
+      </article>
+    </div>
+  </section>
+
+  {% include "components/public_footer.html" %}
+</div>
+{% endblock %}
