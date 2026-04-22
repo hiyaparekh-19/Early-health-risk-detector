@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="public-site">
+  <section class="public-page-intro">
+    <div class="public-kicker">FAQ</div>
+    <h1>Common questions about logging, analysis, and monthly history.</h1>
+    <p class="public-lead">Straight answers for getting started and understanding what the scores mean.</p>
+  </section>
+
+  <section class="public-band">
+    <div class="public-faq-list">
+      <details class="public-faq-item" open>
+        <summary>How many daily logs do I need before predictions appear?</summary>
+        <p>You need at least 7 daily logs in the active month before early prediction appears in Analytics.</p>
+      </details>
+      <details class="public-faq-item">
+        <summary>Why is the current month not listed in Monthly History?</summary>
+        <p>The active month stays in Analytics so Monthly History can remain focused on completed or older months only.</p>
+      </details>
+      <details class="public-faq-item">
+        <summary>What do the risk percentages represent?</summary>
+        <p>They represent estimated pattern-based risk levels derived from your logged behaviour, profile inputs, and repeated symptoms.</p>
+      </details>
+      <details class="public-faq-item">
+        <summary>Can HealthPulse diagnose a medical condition?</summary>
+        <p>No. HealthPulse is a monitoring and insight tool, not a diagnostic service or emergency support channel.</p>
+      </details>
+      <details class="public-faq-item">
+        <summary>What should I do if a risk score stays high?</summary>
+        <p>Use the score explanation to identify the routine patterns involved, then consult a qualified health professional if symptoms persist or worsen.</p>
+      </details>
+      <details class="public-faq-item">
+        <summary>How do I contact the team?</summary>
+        <p>You can reach us through the contact page or by emailing <a href="mailto:care@healthpulse.com">care@healthpulse.com</a>.</p>
+      </details>
+    </div>
+  </section>
+
+  {% include "components/public_footer.html" %}
+</div>
+{% endblock %}

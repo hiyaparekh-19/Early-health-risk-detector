@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="public-site" >
+  <section class="public-page-hero public-page-hero-compact" style="background-image: linear-gradient(120deg, rgba(47, 25, 96, 0.76), rgba(139, 92, 246, 0.56)), url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80');">
+    <div class="public-page-hero-copy">
+      <div class="public-kicker">Contact</div>
+      <h1>Talk to us about support, partnerships, or product questions.</h1>
+      <p class="public-lead">We usually reply within one business day.</p>
+    </div>
+  </section>
+
+  <section class="public-band" >
+    <div class="public-contact-grid public-contact-grid-spaced">
+      <div class="public-contact-card" style="padding: 2%;">
+        <h2>Send a message</h2>
+        <p>Share a little context and the team will route your message to the right person.</p>
+
+        {% if submitted %}
+          <div class="alert alert-success" style="border-radius: 12px;">
+            Thanks for reaching out. We have recorded your message and will get back to you soon.
+          </div>
+        {% endif %}
+
+        <form method="POST" class="public-form">
+          <label for="name">Full name</label>
+          <input id="name" name="name" type="text" value="{{ request.form.get('name', '') }}" required>
+
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" value="{{ request.form.get('email', '') }}" required>
+
+          <label for="topic">Topic</label>
+          <select id="topic" name="topic" required>
+            <option value="">Select a topic</option>
+            <option value="support" {% if request.form.get('topic') == 'support' %}selected{% endif %}>Support</option>
+            <option value="partnership" {% if request.form.get('topic') == 'partnership' %}selected{% endif %}>Partnership</option>
+            <option value="privacy" {% if request.form.get('topic') == 'privacy' %}selected{% endif %}>Privacy</option>
+            <option value="feedback" {% if request.form.get('topic') == 'feedback' %}selected{% endif %}>Feedback</option>
+          </select>
+
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="5" required>{{ request.form.get('message', '') }}</textarea>
+
+          <button type="submit" class="public-btn public-btn-primary">Send message</button>
+        </form>
+      </div>
+
+      <div class="public-contact-card" style="padding: 2%;">
+        <h2>Reach the team directly</h2>
+        <div class="public-contact-list">
+          <div>
+            <strong>Support</strong>
+            <span>care@healthpulse.com</span>
+          </div>
+          <div>
+            <strong>Privacy</strong>
+            <span>privacy@healthpulse.com</span>
+          </div>
+          <div>
+            <strong>Phone</strong>
+            <span>+91 98765 43210</span>
+          </div>
+          <div>
+            <strong>Operating hours</strong>
+            <span>Mon-Sat, 9:00 AM - 7:00 PM IST</span>
+          </div>
+          <div>
+            <strong>Location</strong>
+            <span>MPSTME, Mumbai</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% include "components/public_footer.html" %}
+</div>
+{% endblock %}

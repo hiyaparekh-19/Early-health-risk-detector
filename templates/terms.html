@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="public-site">
+  <section class="public-page-intro">
+    <div class="public-kicker">Terms and conditions</div>
+    <h1>Use HealthPulse with clear expectations around responsibility, privacy, and medical boundaries.</h1>
+    <p class="public-lead">Last updated: April 18, 2026</p>
+  </section>
+
+  <section class="public-band">
+    <div class="public-legal-grid">
+      <article class="public-legal-card">
+        <h2>1. Service scope</h2>
+        <p>HealthPulse provides pattern-based wellness insights generated from information you choose to enter into the product.</p>
+      </article>
+      <article class="public-legal-card">
+        <h2>2. Your account</h2>
+        <p>You are responsible for keeping account access secure and for ensuring the information you submit is truthful to the best of your knowledge.</p>
+      </article>
+      <article class="public-legal-card">
+        <h2>3. Medical disclaimer</h2>
+        <p>HealthPulse is not a replacement for medical advice, diagnosis, treatment, or emergency support. Always seek qualified care when needed.</p>
+      </article>
+      <article class="public-legal-card">
+        <h2>4. Acceptable use</h2>
+        <p>You agree not to misuse the service, attempt unauthorized access, upload harmful content, or use the product for unlawful purposes.</p>
+      </article>
+      <article class="public-legal-card">
+        <h2>5. Data handling</h2>
+        <p>We use account and logging data to operate the service, generate insights, and respond to support or privacy requests.</p>
+      </article>
+      <article class="public-legal-card">
+        <h2>6. Product limits</h2>
+        <p>Predictions are estimates based on logged data patterns. They should be treated as guidance and not as guaranteed outcomes.</p>
+      </article>
+    </div>
+  </section>
+
+  {% include "components/public_footer.html" %}
+</div>
+{% endblock %}

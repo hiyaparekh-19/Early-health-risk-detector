@@ -1,0 +1,520 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="hp-card">
+
+  <div class="hp-card-head">
+    <div>
+      <div class="hp-card-title">Analytics</div>
+      <div class="hp-card-sub">Current month analysis and explainable risk prediction</div>
+    </div>
+    <a class="hp-link" href="/daily">+ Add Daily Log</a>
+  </div>
+
+  <!-- Progress Bar -->
+  {% set progress = (days_count / days_in_month * 100) if days_in_month else 0 %}
+  {% if progress > 100 %}
+    {% set progress = 100 %}
+  {% endif %}
+  <div class="mt-2">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <div class="hp-muted">Data collected for {{ month_label }}</div>
+      <div class="hp-muted"><b>{{ days_count }}</b>/{{ days_in_month }} days</div>
+    </div>
+    <div class="progress" style="height: 10px; border-radius: 999px;">
+      <div class="progress-bar" role="progressbar"
+     style="width: {{ progress|int }}%;"
+     aria-valuenow="{{ days_count }}" aria-valuemin="0" aria-valuemax="{{ days_in_month }}">
+</div>
+    </div>
+  </div>
+
+  {% if month_summary %}
+  <div class="hp-card mt-3">
+    <div class="hp-card-title">Health Summary</div>
+    <div class="hp-card-sub">Best and weakest daily scores for {{ month_label }}</div>
+    <div class="row g-3 mt-1">
+      <div class="col-md-4">
+        <div class="hp-detail"><span>Best result</span><b>{{ month_summary.best.date }} ({{ month_summary.best.score }}%)</b></div>
+      </div>
+      <div class="col-md-4">
+        <div class="hp-detail"><span>Worst result</span><b>{{ month_summary.worst.date }} ({{ month_summary.worst.score }}%)</b></div>
+      </div>
+      <div class="col-md-4">
+        <div class="hp-detail"><span>Monthly average</span><b>{{ month_summary.average_score }}%</b></div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if days_count < 7 %}
+
+    <div class="alert alert-warning mt-3" style="border-radius: 14px;">
+      ⚠️ Please enter minimum <b>7 days</b> of daily data for early prediction.<br>
+      Current Data Collected: <b>{{ days_count }} days</b>
+    </div>
+
+    <div class="hp-muted mt-2">
+      After 7 days, you unlock early AI prediction. After all {{ month_label }} daily logs are complete, you unlock full monthly graphs & AI visual analytics.
+    </div>
+
+  {% else %}
+
+  
+    <div class="hp-card mt-3 mb-2" style="
+    border-radius:22px;
+    padding:30px;
+    background:linear-gradient(135deg,#6a5cff,#8f7bff);
+    color:white;
+    position:relative;
+    overflow:hidden;
+">
+
+    <!-- Title -->
+    <div style="font-size:18px; opacity:0.9;">
+        🧬 Overall Health Risk
+    </div>
+
+    <!-- Value -->
+    <div style="
+        font-size:56px;
+        font-weight:800;
+        margin-top:10px;
+        line-height:1;">
+        {{ risks.overall }}%
+    </div>
+
+    <!-- Status -->
+    <div style="margin-top:10px; font-size:16px;">
+        {% if risks.overall > 70 %}
+            🔴 High Risk
+        {% elif risks.overall > 40 %}
+            🟠 Moderate Risk
+        {% else %}
+            🟢 Low Risk
+        {% endif %}
+    </div>
+
+    <!-- Description -->
+    <div style="margin-top:15px; font-size:13px; opacity:0.85;">
+        Based on your {{ month_label }} health data
+    </div>
+
+    <!-- Progress bar -->
+    <div style="margin-top:15px;">
+        <div style="height:8px; background:rgba(255,255,255,0.2); border-radius:10px;">
+            <div style="
+                width: {{ risks.overall }}%;
+                height:100%;
+                background:white;
+                border-radius:10px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Top risks (FIXED POSITION) -->
+    {% if risks.top_risks %}
+    <div style="margin-top:15px; font-size:14px;">
+        <b>Top Risks:</b>
+        {% for r in risks.top_risks %}
+            <span style="
+                background:rgba(255,255,255,0.2);
+                padding:4px 10px;
+                border-radius:10px;
+                margin-right:6px;
+                display:inline-block;
+                margin-top:6px;">
+                ⚠️ {{ r }}
+            </span>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Decorative circle -->
+    <div style="
+        position:absolute;
+        right:-30px;
+        bottom:-30px;
+        width:140px;
+        height:140px;
+        background:rgba(255,255,255,0.1);
+        border-radius:50%;">
+    </div>
+
+</div>
+ 
+
+</div>
+
+    <!-- 🥧 AI Risk Distribution Doughnut Chart -->
+    <div class="hp-card mt-3">
+      <div class="hp-card-title">Risk Distribution Percentage</div>
+      <div class="hp-card-sub">
+        Visual breakdown of predicted health risks based on profile + behaviour trends
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div style="max-width: 420px; margin: auto;">
+            <canvas id="riskChart"></canvas>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <canvas id="riskBarChart" height="220"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk Cards -->
+    <div class="row g-3 mt-2">
+      <div class="col-md-4">
+        <div class="hp-card hp-stat">
+          <div class="hp-stat-label">🧠 Migraine Risk</div>
+          <div class="hp-stat-value">{{ risks.migraine }}%</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="hp-card hp-stat">
+          <div class="hp-stat-label">🔥 Burnout Risk</div>
+          <div class="hp-stat-value">{{ risks.burnout }}%</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="hp-card hp-stat">
+          <div class="hp-stat-label">😴 Sleep Disorder</div>
+          <div class="hp-stat-value">{{ risks.sleep_disorder }}%</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="hp-card hp-stat">
+          <div class="hp-stat-label">👁️ Eye Strain</div>
+          <div class="hp-stat-value">{{ risks.eye_strain }}%</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="hp-card hp-stat">
+          <div class="hp-stat-label">💧 Dehydration</div>
+          <div class="hp-stat-value">{{ risks.dehydration }}%</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="hp-card hp-stat">
+          <div class="hp-stat-label">🪑 Sedentary</div>
+          <div class="hp-stat-value">{{ risks.sedentary }}%</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="hp-card hp-stat">
+          <div class="hp-stat-label">😰 Anxiety</div>
+          <div class="hp-stat-value">{{ risks.anxiety }}%</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="hp-card hp-stat">
+          <div class="hp-stat-label">⚡ Fatigue</div>
+          <div class="hp-stat-value">{{ risks.fatigue }}%</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="hp-card hp-stat">
+          <div class="hp-stat-label">📱 Digital</div>
+          <div class="hp-stat-value">{{ risks.digital_addiction }}%</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="hp-card hp-stat">
+          <div class="hp-stat-label">❤️ Heart</div>
+          <div class="hp-stat-value">{{ risks.cardiovascular }}%</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="hp-card hp-stat">
+          <div class="hp-stat-label">🧍 Posture</div>
+          <div class="hp-stat-value">{{ risks.posture }}%</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="hp-card hp-stat">
+          <div class="hp-stat-label">🛡️ Immunity</div>
+          <div class="hp-stat-value">{{ risks.immunity }}%</div>
+        </div>
+      </div>
+    
+    </div>
+
+    <!-- Explainable Insights -->
+    <div class="hp-card mt-3">
+      <div class="hp-card-title">Why these results?</div>
+      <div class="hp-muted mt-1">
+        Your risks are calculated using behavioural trends (sleep, stress, screen time, hydration, activity)
+        combined with your profile and symptom frequency over time.
+      </div>
+
+      <ul class="mt-2">
+        <li><b>Migraine</b> increases with high screen time, stress levels, and frequent headaches.</li>
+        <li><b>Burnout</b> is influenced by sustained stress, low energy, and poor sleep patterns.</li>
+        <li><b>Sleep Disorder</b> depends on deviation from the healthy 7-hour sleep baseline.</li>
+        <li><b>Eye Strain</b> correlates with screen exposure and reported eye discomfort.</li>
+        <li><b>Dehydration</b> is estimated using water intake trends across logged days.</li>
+        <li><b>Sedentary</b> reflects low step count and inactivity patterns.</li>
+        <li><b>Anxiety</b> is driven by high stress and poor sleep patterns.</li>
+        <li><b>Fatigue</b> depends on energy levels and sleep recovery.</li>
+        <li><b>Digital Addiction</b> correlates with excessive screen usage.</li>
+        <li><b>Cardiovascular</b> risk depends on activity, stress, and hydration.</li>
+        <li><b>Posture</b> is influenced by screen time and inactivity.</li>
+        <li><b>Immunity</b> reflects stress, sleep, and overall energy balance.</li>
+      </ul>
+
+      {% if not full_month_unlocked %}
+        <div class="alert alert-info mt-2" style="border-radius: 14px;">
+          📌 You have <b>{{ days_count }}</b> of <b>{{ days_in_month }}</b> {{ month_label }} daily logs. Complete the month to unlock full monthly graphs.
+        </div>
+      {% else %}
+        <div class="alert alert-success mt-2" style="border-radius: 14px;">
+          ✅ Monthly dataset ready. Full graphs are unlocked.
+        </div>
+      {% endif %}
+    </div>
+
+    {% if full_month_unlocked %}
+    <!-- Trend Graphs -->
+    <div class="row g-3 mt-1">
+      <div class="col-md-6">
+        <div class="hp-card">
+          <div class="hp-card-title">Sleep Trend ({{ month_label }})</div>
+          <canvas id="sleepChart" height="140"></canvas>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="hp-card">
+          <div class="hp-card-title">Stress Trend ({{ month_label }})</div>
+          <canvas id="stressChart" height="140"></canvas>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="hp-card">
+          <div class="hp-card-title">Screen Time ({{ month_label }})</div>
+          <canvas id="screenChart" height="140"></canvas>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="hp-card">
+          <div class="hp-card-title">Steps Trend ({{ month_label }})</div>
+          <canvas id="stepsChart" height="140"></canvas>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  {% endif %}
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+{% if days_count >= 7 %}
+<script>
+// 🥧 Doughnut Risk Chart
+const riskCtx = document.getElementById('riskChart');
+if (riskCtx) {
+  new Chart(riskCtx, {
+    type: 'doughnut',
+    data: {
+      labels: [
+        'Migraine','Burnout','Sleep','Eye','Dehydration',
+        'Sedentary','Anxiety','Fatigue','Digital',
+        'Heart','Posture','Immunity'
+      ],
+      datasets: [{
+        data: [
+          {{ risks.migraine }},
+          {{ risks.burnout }},
+          {{ risks.sleep_disorder }},
+          {{ risks.eye_strain }},
+          {{ risks.dehydration }},
+          {{ risks.sedentary }},
+          {{ risks.anxiety }},
+          {{ risks.fatigue }},
+          {{ risks.digital_addiction }},
+          {{ risks.cardiovascular }},
+          {{ risks.posture }},
+          {{ risks.immunity }}
+        ],
+        backgroundColor: [
+        '#3B82F6', // Migraine (Blue)
+        '#EF4444', // Burnout (Red)
+        '#22C55E', // Sleep (Green)
+        '#EAB308', // Eye (Yellow)
+        '#93C5FD', // Dehydration (Cyan)
+        '#800000', // Sedentary (Indigo)
+        '#EC4899', // Anxiety (Pink)
+        '#808000', // Fatigue (Lime)
+        '#F97316', // Digital (Orange)
+        '#FBCFE8', // Heart (Rose)
+        '#8B5CF6', // Posture (Purple)
+        '#6B7280'  // Immunity (Grey)
+      ],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+}
+
+// 📊 Risk Bar Chart
+const barCtx = document.getElementById('riskBarChart');
+
+if (barCtx) {
+  new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: [
+        'Migraine','Burnout','Sleep','Eye','Dehydration',
+        'Sedentary','Anxiety','Fatigue','Digital',
+        'Heart','Posture','Immunity'
+      ],
+      datasets: [{
+        data: [
+          {{ risks.migraine }},
+          {{ risks.burnout }},
+          {{ risks.sleep_disorder }},
+          {{ risks.eye_strain }},
+          {{ risks.dehydration }},
+          {{ risks.sedentary }},
+          {{ risks.anxiety }},
+          {{ risks.fatigue }},
+          {{ risks.digital_addiction }},
+          {{ risks.cardiovascular }},
+          {{ risks.posture }},
+          {{ risks.immunity }}
+        ],
+        backgroundColor: [
+        '#3B82F6', // Migraine (Blue)
+        '#EF4444', // Burnout (Red)
+        '#22C55E', // Sleep (Green)
+        '#EAB308', // Eye (Yellow)
+        '#93C5FD', // Dehydration (Cyan)
+        '#800000', // Sedentary (Indigo)
+        '#EC4899', // Anxiety (Pink)
+        '#808000', // Fatigue (Lime)
+        '#F97316', // Digital (Orange)
+        '#FBCFE8', // Heart (Rose)
+        '#8B5CF6', // Posture (Purple)
+        '#6B7280'  // Immunity (Grey)
+      ],
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: value => value + "%"
+          }
+        }
+      }
+    }
+  });
+}
+</script>
+{% endif %}
+
+{% if full_month_unlocked %}
+<script>
+const labels = {{ dates | tojson }};
+const sleepData = {{ sleep | tojson }};
+const stressData = {{ stress | tojson }};
+const screenData = {{ screen | tojson }};
+const stepsData = {{ steps | tojson }};
+
+function makeLineChart(canvasId, label, data) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: label,
+        data: data,
+        tension: 0.35,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { maxTicksLimit: 8 } },
+        y: { beginAtZero: true }
+      }
+    }
+  });
+}
+
+makeLineChart('sleepChart', 'Sleep', sleepData);
+makeLineChart('stressChart', 'Stress', stressData);
+makeLineChart('screenChart', 'Screen', screenData);
+makeLineChart('stepsChart', 'Steps', stepsData);
+</script>
+{% endif %}
+
+<!-- Floating AI Chat Icon -->
+<a href="/chatbot" class="ai-chat-icon" title="AI Health Assistant">
+    🤖
+</a>
+
+<style>
+.ai-chat-icon {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6a5cff, #8f7bff);
+    color: #fff;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 8px 22px rgba(106, 92, 255, 0.35);
+    transition: all 0.25s ease;
+    z-index: 9999;
+}
+
+.ai-chat-icon:hover {
+    transform: scale(1.12);
+    box-shadow: 0 10px 28px rgba(106, 92, 255, 0.5);
+}
+</style>
+
+{% endblock %}

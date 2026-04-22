@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="hp-card" style="max-width: 900px; margin: auto;">
+
+    <div class="hp-card-head">
+        <div>
+            <div class="hp-card-title">Daily Health Check-in</div>
+            <div class="hp-card-sub">
+                Log your lifestyle & wellbeing for smart health insights
+            </div>
+        </div>
+        <a href="/dashboard" class="hp-link">Back to Dashboard</a>
+    </div>
+
+    <form method="POST" class="mt-3">
+
+        <!-- DATE -->
+        <div class="mb-4">
+            <label class="form-label fw-bold">Select Date</label>
+            <input type="date" name="date" id="dateInput"
+                   class="form-control hp-input" required>
+            <small id="dateError" style="color:red; display:none;"></small>
+        </div>
+
+        <!-- SLEEP -->
+        <div class="hp-subcard mb-4">
+            <h5 class="section-title">🛌 Sleep</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label>Sleep Hours</label>
+                    <input type="number" step="0.5" name="sleep_hours"
+                           class="form-control hp-input" required>
+                    <small id="sleepError" style="color:red; display:none;"></small>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Sleep Quality (1–5)</label>
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="range" min="1" max="5" value="1"
+                               name="sleep_quality" class="form-range" id="sleepRange">
+                        <span id="sleepValue">1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HABITS -->
+        <div class="hp-subcard mb-4">
+            <h5 class="section-title">💧 Daily Habits</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label>Water Intake (Litres)</label>
+                    <input type="number" step="0.5" name="water_intake"
+                           class="form-control hp-input" required>
+                    <small id="waterError" style="color:red; display:none;"></small>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Screen Time (Hours)</label>
+                    <input type="number" step="0.5" name="screen_time"
+                           class="form-control hp-input" required>
+                    <small id="screenError" style="color:red; display:none;"></small>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVITY -->
+        <div class="hp-subcard mb-4">
+            <h5 class="section-title">🏃 Physical Activity</h5>
+            <label>Steps Count</label>
+            <input type="number" name="steps_count"
+                   class="form-control hp-input" required>
+            <small id="stepsError" style="color:red; display:none;"></small>
+        </div>
+
+        <!-- MENTAL -->
+        <div class="hp-subcard mb-4">
+            <h5 class="section-title">🧠 Mental State</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label>Stress Level (1–10)</label>
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="range" min="1" max="10" value="1"
+                               name="stress_level" class="form-range" id="stressRange">
+                        <span id="stressValue">1</span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Energy Level (1–5)</label>
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="range" min="1" max="5" value="1"
+                               name="energy_level" class="form-range" id="energyRange">
+                        <span id="energyValue">1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SYMPTOMS -->
+        <div class="hp-subcard mb-4">
+            <h5 class="section-title">⚕️ Symptoms</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label>Headache</label>
+                    <select name="headache" class="form-select hp-input" required>
+                        <option value="">Select</option>
+                        <option>No</option>
+                        <option>Yes</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Eye Strain</label>
+                    <select name="eye_strain" class="form-select hp-input" required>
+                        <option value="">Select</option>
+                        <option>No</option>
+                        <option>Yes</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- BUTTON -->
+        <button id="saveBtn" type="submit"
+                class="btn btn-primary w-100 py-3"
+                style="border-radius: 14px; font-weight: 600; font-size: 16px;"
+                disabled>
+            Save Daily Entry 🚀
+        </button>
+
+    </form>
+</div>
+
+<script>
+function attachSlider(id, valueId) {
+    const el = document.getElementById(id);
+    const val = document.getElementById(valueId);
+    if (!el) return;
+    val.textContent = el.value;
+    el.addEventListener("input", () => {
+        val.textContent = el.value;
+        validateForm();
+    });
+}
+attachSlider("sleepRange","sleepValue");
+attachSlider("stressRange","stressValue");
+attachSlider("energyRange","energyValue");
+
+// 🔒 STRICT NUMBER CONTROL
+function allowOnlyNumbers(input, allowDecimal=false){
+    input.addEventListener("input", function(){
+        let val = this.value;
+        if(allowDecimal){
+            val = val.replace(/[^0-9.]/g,'');
+            if((val.match(/\./g)||[]).length>1){
+                val = val.slice(0,-1);
+            }
+        } else {
+            val = val.replace(/[^0-9]/g,'');
+        }
+        this.value = val;
+    });
+
+    input.addEventListener("keydown", function(e){
+        if(["e","E","+","-"].includes(e.key)){
+            e.preventDefault();
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const date = document.getElementById("dateInput");
+    const sleep = document.querySelector("[name=sleep_hours]");
+    const water = document.querySelector("[name=water_intake]");
+    const screen = document.querySelector("[name=screen_time]");
+    const steps = document.querySelector("[name=steps_count]");
+    const headache = document.querySelector("[name=headache]");
+    const eye = document.querySelector("[name=eye_strain]");
+    const btn = document.getElementById("saveBtn");
+
+    // apply number restrictions
+    allowOnlyNumbers(sleep, true);
+    allowOnlyNumbers(water, true);
+    allowOnlyNumbers(screen, true);
+    allowOnlyNumbers(steps, false);
+
+    function setError(el, msg) {
+        el.textContent = msg;
+        el.style.display = msg ? "block" : "none";
+    }
+
+    window.validateForm = function() {
+        let valid = true;
+
+        const today = new Date(); today.setHours(0,0,0,0);
+        const selected = new Date(date.value);
+
+        if (!date.value) { setError(dateError,"Required"); valid=false;}
+        else if (selected > today) {
+            setError(dateError,"Future date not allowed");
+            date.style.border="2px solid red"; valid=false;
+        } else { setError(dateError,""); date.style.border=""; }
+
+        if (!sleep.value) { setError(sleepError,"Required"); valid=false;}
+        else if (sleep.value > 24) { setError(sleepError,"Max 24 hrs"); sleep.style.border="2px solid red"; valid=false;}
+        else { setError(sleepError,""); sleep.style.border=""; }
+
+        if (!screen.value) { setError(screenError,"Required"); valid=false;}
+        else if (screen.value > 12) { setError(screenError,"Max 12 hrs"); screen.style.border="2px solid red"; valid=false;}
+        else { setError(screenError,""); screen.style.border=""; }
+
+        if (!water.value) { setError(waterError,"Required"); valid=false;}
+        else if (water.value > 6) { setError(waterError,"Max 6L"); water.style.border="2px solid red"; valid=false;}
+        else { setError(waterError,""); water.style.border=""; }
+
+        if (!steps.value) { setError(stepsError,"Required"); valid=false;}
+        else if (steps.value > 100000) { setError(stepsError,"Too high"); steps.style.border="2px solid red"; valid=false;}
+        else { setError(stepsError,""); steps.style.border=""; }
+
+        if (!headache.value || !eye.value) valid=false;
+
+        btn.disabled = !valid;
+        btn.style.opacity = valid ? "1" : "0.6";
+    }
+
+    document.querySelectorAll("input, select").forEach(el=>{
+        el.addEventListener("input", validateForm);
+        el.addEventListener("change", validateForm);
+    });
+
+});
+</script>
+
+<!-- Floating AI Chat Icon -->
+<a href="/chatbot" class="ai-chat-icon" title="AI Health Assistant">
+    🤖
+</a>
+
+<style>
+.ai-chat-icon {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6a5cff, #8f7bff);
+    color: #fff;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 8px 22px rgba(106, 92, 255, 0.35);
+    transition: all 0.25s ease;
+    z-index: 9999;
+}
+
+.ai-chat-icon:hover {
+    transform: scale(1.12);
+    box-shadow: 0 10px 28px rgba(106, 92, 255, 0.5);
+}
+</style>
+
+{% endblock %}
