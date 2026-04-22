@@ -1,0 +1,30 @@
+<header class="hp-topbar">
+  <div class="hp-topbar-left">
+    <div class="hp-title">Overview of Your Health</div>
+    <div class="hp-subtitle">Balance • Strength • Vitality • Wellness</div>
+  </div>
+
+  <div class="hp-topbar-right">
+    <a class="hp-pill" href="/dashboard" title="Dashboard">
+      <i class="bi bi-speedometer2"></i>
+    </a>
+
+    <a class="hp-pill" href="/daily" title="Add Daily Log">
+      <i class="bi bi-plus-lg"></i>
+    </a>
+
+    <!-- <button class="hp-pill" onclick="toggleTheme()" title="Dark/Light Theme">
+    🌙
+</button> -->
+
+    <div class="hp-user">
+      <div class="hp-avatar">
+        <i class="bi bi-person-fill"></i>
+      </div>
+      <div class="hp-user-meta">
+        <div class="hp-user-name">{{ session.get("user_name", "User") }}</div>
+        <div class="hp-user-sub">Premium Member</div>
+      </div>
+    </div>
+  </div>
+</header>
