@@ -192,6 +192,8 @@ def repair_daily_data_table(conn):
         """)
 
 
+
+
 def get_latest_daily_entry(db, user_id, selected_date):
     return db.execute(
         """
@@ -557,6 +559,10 @@ def privacy():
 @app.route("/faq")
 def faq():
     return render_template("faq.html", public_page=True)
+
+@app.route("/test-image")
+def test_image():
+    return '<img src="/static/images/jeet.jpeg">'
 
 
 @app.route("/contact", methods=["GET", "POST"])
