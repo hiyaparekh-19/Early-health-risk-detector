@@ -18,6 +18,7 @@
             🤖 AI Health Risk Assistant
         </div>
 
+        <!-- CANCEL / CLOSE BUTTON -->
         <a href="/dashboard" class="btn btn-light btn-sm" style="border-radius:10px;">
             ✖ Close
         </a>
@@ -30,13 +31,18 @@
         padding:20px;
         background:#f6f7fb;">
         
-        <div class="bot-msg">
+        <div style="
+            background:#e9ecff;
+            padding:12px 16px;
+            border-radius:12px;
+            max-width:70%;
+            margin-bottom:10px;">
             Hello! I am your AI Health Assistant.  
             Ask me why your risk is high or how to prevent it.
         </div>
     </div>
 
-    <!-- Input -->
+    <!-- Input Area -->
     <div style="
         display:flex;
         border-top:1px solid #eee;
@@ -69,81 +75,61 @@
   </div>
 </div>
 
-<style>
-.user-msg {
-    background:#6a5cff;
-    color:white;
-    padding:12px 16px;
-    border-radius:12px;
-    max-width:70%;
-    margin-left:auto;
-    margin-bottom:10px;
-}
-
-.bot-msg {
-    background:#e9ecff;
-    padding:12px 16px;
-    border-radius:12px;
-    max-width:70%;
-    margin-bottom:10px;
-}
-</style>
-
 <script>
-async function sendMessage() {
-    const input = document.getElementById("userInput");
-    const chatBox = document.getElementById("chatBox");
-
-    const message = input.value.trim();
+function sendMessage() {
+    let input = document.getElementById("userInput");
+    let message = input.value.trim();
     if (!message) return;
 
-    input.value = "";
+    let chatBox = document.getElementById("chatBox");
 
-    // 🔥 LOADING
-    const loading = document.createElement("div");
-    loading.className = "bot-msg";
-    loading.innerText = "Typing...";
-    chatBox.appendChild(loading);
+    // USER MESSAGE (safe)
+    chatBox.innerHTML += `
+        <div style="
+            background:#6a5cff;
+            color:white;
+            padding:12px 16px;
+            border-radius:12px;
+            max-width:70%;
+            margin-left:auto;
+            margin-bottom:10px;">
+            ${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+        </div>`;
 
     chatBox.scrollTop = chatBox.scrollHeight;
 
-    const res = await fetch("/chat", {
+    // LOADING
+    let loadingDiv = document.createElement("div");
+    loadingDiv.innerHTML = "Typing...";
+    loadingDiv.style.marginBottom = "10px";
+    chatBox.appendChild(loadingDiv);
+
+    fetch("/chat", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ message })
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message: message})
+    })
+    .then(res => res.json())
+    .then(data => {
+        loadingDiv.remove();
+
+        chatBox.innerHTML += `
+            <div style="
+                background:#e9ecff;
+                padding:12px 16px;
+                border-radius:12px;
+                max-width:70%;
+                margin-bottom:10px;">
+                ${data.reply.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+            </div>`;
+
+        chatBox.scrollTop = chatBox.scrollHeight;
     });
 
-    const data = await res.json();
-
-    loading.remove();
-
-    // 🔥 CLEAR CHAT
-    chatBox.innerHTML = "";
-
-    // 🔥 RENDER FULL HISTORY
-    data.history.forEach(msg => {
-
-        // ❌ skip system message
-        if (msg.role === "system") return;
-
-        // ❌ skip hidden AI prompt
-        if (msg.content.includes("User Health Data")) return;
-
-        const div = document.createElement("div");
-
-        div.className = msg.role === "user" ? "user-msg" : "bot-msg";
-
-        div.innerText = msg.content;
-
-        chatBox.appendChild(div);
-    });
-
-    chatBox.scrollTop = chatBox.scrollHeight;
+    input.value = "";
 }
 
-// ENTER key support
+// ENTER KEY SUPPORT
 document.getElementById("userInput").addEventListener("keypress", function(e) {
     if (e.key === "Enter") {
         sendMessage();
