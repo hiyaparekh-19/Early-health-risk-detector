@@ -9,6 +9,7 @@ from profile_ai_model import predict_profile_risk
 from flask import session, redirect, url_for
 from explain_engine import generate_explanations
 from datetime import date, timedelta
+from chatbot import generate_health_response_with_history, detect_risk_type
 
 # ----------------------------
 # APP SETUP
@@ -560,9 +561,6 @@ def privacy():
 def faq():
     return render_template("faq.html", public_page=True)
 
-@app.route("/test-image")
-def test_image():
-    return '<img src="/static/images/jeet.jpeg">'
 
 
 @app.route("/contact", methods=["GET", "POST"])
@@ -1081,15 +1079,58 @@ def chat():
     # -----------------------------
     # GENERATE RESPONSE
     # -----------------------------
-    bot_reply = generate_health_response(
-        combined_data,
-        user_message,
-        risk_score=risk_score,
-        risk_scores=risk_scores,
-        days_count=days_count,
-        days_in_month=month_context["days_in_month"],
-        risk_type=risk_type,
-    )
+    # -----------------------------
+    # 🧠 CHAT HISTORY INIT
+    # -----------------------------
+    if "chat_history" not in session:
+        session["chat_history"] = [
+            {
+                "role": "system",
+                "content": "You are a helpful health assistant. Give short, safe advice. Do not diagnose."
+            }
+        ]
+
+    history = session["chat_history"]
+
+    # ✅ Add visible user message
+    history.append({
+        "role": "user",
+        "content": user_message
+    })
+
+    # 🧠 Build hidden context prompt
+    prompt = f"""
+    User Health Data:
+    {combined_data}
+
+    Risk Type: {risk_type}
+    Risk Score: {risk_score}/100
+    Days Logged: {days_count}/{month_context["days_in_month"]}
+
+    User Question:
+    {user_message}
+    """
+
+    # 🔥 Add hidden prompt (for AI only)
+    history.append({
+        "role": "user",
+        "content": prompt
+    })
+
+    # ⚡ Limit memory
+    history = history[-10:]
+
+    # 🤖 CALL CHATBOT WITH HISTORY
+    bot_reply = generate_health_response_with_history(history)
+
+    # ✅ Save bot reply
+    history.append({
+        "role": "assistant",
+        "content": bot_reply
+    })
+
+    # Save session
+    session["chat_history"] = history
 
     # NOTE FOR LOW DATA
     note = ""
@@ -1098,6 +1139,7 @@ def chat():
 
     return jsonify({
         "reply": bot_reply + note,
+        "history": history,
         "risk_type": risk_type,
         "risk_score": risk_score,
         "days_count": days_count,

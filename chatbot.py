@@ -75,3 +75,4 @@ def detect_risk_type(user_message, risk_scores):
             return max(numeric_scores, key=numeric_scores.get)
 
     return "overall"
+
